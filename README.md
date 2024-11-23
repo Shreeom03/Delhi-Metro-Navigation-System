@@ -15,9 +15,9 @@
     - **Nodes:** Contain station information (name, corridor, connecting lines).
     - **Edges:** Represent distances between stations with costs equal to these distances.
   - **Heap:** Used for efficient route calculations.
-- **Algorithms:** Utilizes Dijkstra's algorithm, BFS, and DFS to determine the shortest path and calculate fare based on the total distance.
+- **Algorithms:** Utilizes Dijkstra's algorithm to determine the shortest path and calculate fare based on the total distance.
 
 ## Files:
 
-- `Main.java`: Contains the core functionality and algorithms.
+- `Graph_M.java`: Contains the core functionality and algorithms.
 - `Heap.java`: Implements the heap data structure.
