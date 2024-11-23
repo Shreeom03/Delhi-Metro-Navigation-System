@@ -152,32 +152,14 @@ public class Graph_M {
 		String psf;
 		int cost;
 
-		/*
-		 * The compareTo method is defined in Java.lang.Comparable.
-		 * Here, we override the method because the conventional compareTo method
-		 * is used to compare strings,integers and other primitive data types. But
-		 * here in this case, we intend to compare two objects of DijkstraPair class.
-		 */
-
-		/*
-		 * Removing the overriden method gives us this errror:
-		 * The type Graph_M.DijkstraPair must implement the inherited abstract method
-		 * Comparable<Graph_M.DijkstraPair>.compareTo(Graph_M.DijkstraPair)
-		 * 
-		 * This is because DijkstraPair is not an abstract class and implements
-		 * Comparable interface which has an abstract
-		 * method compareTo. In order to make our class concrete(a class which provides
-		 * implementation for all its methods)
-		 * we have to override the method compareTo
-		 */
 		@Override
 		public int compareTo(DijkstraPair o) {
 			return o.cost - this.cost;
 		}
 	}
 
-	public int dijkstra(String src, String des, boolean nan) {
-		int val = 0;
+	public DijkstraPair dijkstra(String src, String des, boolean nan) {
+		DijkstraPair dp = new DijkstraPair();
 		ArrayList<String> ans = new ArrayList<>();
 		HashMap<String, DijkstraPair> map = new HashMap<>();
 
@@ -191,7 +173,7 @@ public class Graph_M {
 
 			if (key.equals(src)) {
 				np.cost = 0;
-				np.psf = key;
+				np.psf = key + "  ";
 			}
 
 			heap.add(np);
@@ -203,7 +185,7 @@ public class Graph_M {
 			DijkstraPair rp = heap.remove();
 
 			if (rp.vname.equals(des)) {
-				val = rp.cost;
+				dp = rp;
 				break;
 			}
 
@@ -215,16 +197,15 @@ public class Graph_M {
 			for (String nbr : v.nbrs.keySet()) {
 				if (map.containsKey(nbr)) {
 					int oc = map.get(nbr).cost;
-					Vertex k = vtces.get(rp.vname);
 					int nc;
 					if (nan)
-						nc = rp.cost + 120 + 40 * k.nbrs.get(nbr);
+						nc = rp.cost + 120 + 40 * v.nbrs.get(nbr);
 					else
-						nc = rp.cost + k.nbrs.get(nbr);
+						nc = rp.cost + v.nbrs.get(nbr);
 
 					if (nc < oc) {
 						DijkstraPair gp = map.get(nbr);
-						gp.psf = rp.psf + nbr;
+						gp.psf = rp.psf + nbr + "  ";
 						gp.cost = nc;
 
 						heap.updatePriority(gp);
@@ -232,7 +213,12 @@ public class Graph_M {
 				}
 			}
 		}
-		return val;
+		if (nan) {
+			dp.psf = dp.psf + Integer.toString((dp.cost / 60));
+		} else {
+			dp.psf = dp.psf + Integer.toString(dp.cost);
+		}
+		return dp;
 	}
 
 	private class Pair {
@@ -240,127 +226,6 @@ public class Graph_M {
 		String psf;
 		int min_dis;
 		int min_time;
-	}
-
-	public String Get_Minimum_Distance(String src, String dst) {
-		int min = Integer.MAX_VALUE;
-		// int time = 0;
-		String ans = "";
-		HashMap<String, Boolean> processed = new HashMap<>();
-		LinkedList<Pair> stack = new LinkedList<>();
-
-		// create a new pair
-		Pair sp = new Pair();
-		sp.vname = src;
-		sp.psf = src + "  ";
-		sp.min_dis = 0;
-		sp.min_time = 0;
-
-		// put the new pair in stack
-		stack.addFirst(sp);
-
-		// while stack is not empty keep on doing the work
-		while (!stack.isEmpty()) {
-			// remove a pair from stack
-			Pair rp = stack.removeFirst();
-
-			if (processed.containsKey(rp.vname)) {
-				continue;
-			}
-
-			// processed put
-			processed.put(rp.vname, true);
-
-			// if there exists a direct edge b/w removed pair and destination vertex
-			if (rp.vname.equals(dst)) {
-				int temp = rp.min_dis;
-				if (temp < min) {
-					ans = rp.psf;
-					min = temp;
-				}
-				continue;
-			}
-
-			Vertex rpvtx = vtces.get(rp.vname);
-			ArrayList<String> nbrs = new ArrayList<>(rpvtx.nbrs.keySet());
-
-			for (String nbr : nbrs) {
-				// process only unprocessed nbrs
-				if (!processed.containsKey(nbr)) {
-
-					// make a new pair of nbr and put in queue
-					Pair np = new Pair();
-					np.vname = nbr;
-					np.psf = rp.psf + nbr + "  ";
-					np.min_dis = rp.min_dis + rpvtx.nbrs.get(nbr);
-					// np.min_time = rp.min_time + 120 + 40*rpvtx.nbrs.get(nbr);
-					stack.addFirst(np);
-				}
-			}
-		}
-		ans = ans + Integer.toString(min);
-		return ans;
-	}
-
-	public String Get_Minimum_Time(String src, String dst) {
-		int min = Integer.MAX_VALUE;
-		String ans = "";
-		HashMap<String, Boolean> processed = new HashMap<>();
-		LinkedList<Pair> stack = new LinkedList<>();
-
-		// create a new pair
-		Pair sp = new Pair();
-		sp.vname = src;
-		sp.psf = src + "  ";
-		sp.min_dis = 0;
-		sp.min_time = 0;
-
-		// put the new pair in queue
-		stack.addFirst(sp);
-
-		// while queue is not empty keep on doing the work
-		while (!stack.isEmpty()) {
-
-			// remove a pair from queue
-			Pair rp = stack.removeFirst();
-
-			if (processed.containsKey(rp.vname)) {
-				continue;
-			}
-
-			// processed put
-			processed.put(rp.vname, true);
-
-			// if there exists a direct edge b/w removed pair and destination vertex
-			if (rp.vname.equals(dst)) {
-				int temp = rp.min_time;
-				if (temp < min) {
-					ans = rp.psf;
-					min = temp;
-				}
-				continue;
-			}
-
-			Vertex rpvtx = vtces.get(rp.vname);
-			ArrayList<String> nbrs = new ArrayList<>(rpvtx.nbrs.keySet());
-
-			for (String nbr : nbrs) {
-				// process only unprocessed nbrs
-				if (!processed.containsKey(nbr)) {
-
-					// make a new pair of nbr and put in queue
-					Pair np = new Pair();
-					np.vname = nbr;
-					np.psf = rp.psf + nbr + "  ";
-					// np.min_dis = rp.min_dis + rpvtx.nbrs.get(nbr);
-					np.min_time = rp.min_time + 120 + 40 * rpvtx.nbrs.get(nbr);
-					stack.addFirst(np);
-				}
-			}
-		}
-		Double minutes = Math.ceil((double) min / 60);
-		ans = ans + Double.toString(minutes);
-		return ans;
 	}
 
 	public ArrayList<String> get_Interchanges(String str) {
@@ -379,6 +244,10 @@ public class Graph_M {
 				if (prev.equals(next)) {
 					arr.add(res[i]);
 				} else {
+					if (i == res.length - 2) {
+						arr.add(res[i]);
+						continue;
+					}
 					arr.add(res[i] + " ==> " + res[i + 1]);
 					i++;
 					count++;
@@ -481,21 +350,7 @@ public class Graph_M {
 		Create_Metro_Map(g);
 
 		System.out.println("\n\t\t\t****WELCOME TO THE METRO APP*****");
-		// System.out.println("\t\t\t\t~~LIST OF ACTIONS~~\n\n");
-		// System.out.println("1. LIST ALL THE STATIONS IN THE MAP");
-		// System.out.println("2. SHOW THE METRO MAP");
-		// System.out.println("3. GET SHORTEST DISTANCE FROM A 'SOURCE' STATION TO
-		// 'DESTINATION' STATION");
-		// System.out.println("4. GET SHORTEST TIME TO REACH FROM A 'SOURCE' STATION TO
-		// 'DESTINATION' STATION");
-		// System.out.println("5. GET SHORTEST PATH (DISTANCE WISE) TO REACH FROM A
-		// 'SOURCE' STATION TO 'DESTINATION' STATION");
-		// System.out.println("6. GET SHORTEST PATH (TIME WISE) TO REACH FROM A 'SOURCE'
-		// STATION TO 'DESTINATION' STATION");
-		// System.out.print("\nENTER YOUR CHOICE FROM THE ABOVE LIST : ");
 		BufferedReader inp = new BufferedReader(new InputStreamReader(System.in));
-		// int choice = Integer.parseInt(inp.readLine());
-		// STARTING SWITCH CASE
 		while (true) {
 			System.out.println("\t\t\t\t~~LIST OF ACTIONS~~\n\n");
 			System.out.println("1. LIST ALL THE STATIONS IN THE MAP");
@@ -506,16 +361,17 @@ public class Graph_M {
 					"5. GET SHORTEST PATH (DISTANCE WISE) TO REACH FROM A 'SOURCE' STATION TO 'DESTINATION' STATION");
 			System.out.println(
 					"6. GET SHORTEST PATH (TIME WISE) TO REACH FROM A 'SOURCE' STATION TO 'DESTINATION' STATION");
-			System.out.println("7. EXIT THE MENU");
-			System.out.print("\nENTER YOUR CHOICE FROM THE ABOVE LIST (1 to 7) : ");
+			System.out.println("7. GET COST TO REACH FROM A 'SOURCE' STATION TO 'DESTINATION' STATION");
+			System.out.println("8. EXIT THE MENU");
+			System.out.print("\nENTER YOUR CHOICE FROM THE ABOVE LIST (1 to 8) : ");
 			int choice = -1;
 			try {
 				choice = Integer.parseInt(inp.readLine());
 			} catch (Exception e) {
-				// default will handle
 			}
 			System.out.print("\n***********************************************************\n");
-			if (choice == 7) {
+			if (choice == 8) {
+				System.out.println("Thanks for choosing Delhi Metro!");
 				System.exit(0);
 			}
 			switch (choice) {
@@ -566,34 +422,94 @@ public class Graph_M {
 						System.out.println("THE INPUTS ARE INVALID");
 					else
 						System.out.println("SHORTEST DISTANCE FROM " + st1 + " TO " + st2 + " IS "
-								+ g.dijkstra(st1, st2, false) + "KM\n");
+								+ g.dijkstra(st1, st2, false).cost + "KM\n");
 					break;
 
 				case 4:
-					System.out.print("ENTER THE SOURCE STATION: ");
-					String sat1 = inp.readLine();
-					System.out.print("ENTER THE DESTINATION STATION: ");
-					String sat2 = inp.readLine();
+					ArrayList<String> keys1 = new ArrayList<>(vtces.keySet());
+					String codes1[] = printCodelist();
+					System.out.println(
+							"\n1. TO ENTER SERIAL NO. OF STATIONS\n2. TO ENTER CODE OF STATIONS\n3. TO ENTER NAME OF STATIONS\n");
+					System.out.println("ENTER YOUR CHOICE:");
+					int ch1 = Integer.parseInt(inp.readLine());
+					int j1;
+
+					String sat1 = "", sat2 = "";
+					System.out.println("ENTER THE SOURCE AND DESTINATION STATIONS");
+					if (ch1 == 1) {
+						sat1 = keys1.get(Integer.parseInt(inp.readLine()) - 1);
+						sat2 = keys1.get(Integer.parseInt(inp.readLine()) - 1);
+					} else if (ch1 == 2) {
+						String a, b;
+						a = (inp.readLine()).toUpperCase();
+						for (j = 0; j < keys1.size(); j++)
+							if (a.equals(codes1[j]))
+								break;
+						sat1 = keys1.get(j);
+						b = (inp.readLine()).toUpperCase();
+						for (j = 0; j < keys1.size(); j++)
+							if (b.equals(codes1[j]))
+								break;
+						sat2 = keys1.get(j);
+					} else if (ch1 == 3) {
+						sat1 = inp.readLine();
+						sat2 = inp.readLine();
+					} else {
+						System.out.println("Invalid choice");
+						System.exit(0);
+					}
 
 					HashMap<String, Boolean> processed1 = new HashMap<>();
+					if (!g.containsVertex(sat1) || !g.containsVertex(sat2) || !g.hasPath(sat1, sat2, processed1))
+						System.out.println("THE INPUTS ARE INVALID");
+
 					System.out.println("SHORTEST TIME FROM (" + sat1 + ") TO (" + sat2 + ") IS "
-							+ g.dijkstra(sat1, sat2, true) / 60 + " MINUTES\n\n");
+							+ g.dijkstra(sat1, sat2, true).cost / 60 + " MINUTES\n\n");
 					break;
 
 				case 5:
+					ArrayList<String> keys2 = new ArrayList<>(vtces.keySet());
+					String codes2[] = printCodelist();
+					System.out.println(
+							"\n1. TO ENTER SERIAL NO. OF STATIONS\n2. TO ENTER CODE OF STATIONS\n3. TO ENTER NAME OF STATIONS\n");
+					System.out.println("ENTER YOUR CHOICE:");
+					int ch2 = Integer.parseInt(inp.readLine());
+					int j2;
+
+					String s1 = "", s2 = "";
 					System.out.println("ENTER THE SOURCE AND DESTINATION STATIONS");
-					String s1 = inp.readLine();
-					String s2 = inp.readLine();
+					if (ch2 == 1) {
+						s1 = keys2.get(Integer.parseInt(inp.readLine()) - 1);
+						s2 = keys2.get(Integer.parseInt(inp.readLine()) - 1);
+					} else if (ch2 == 2) {
+						String a, b;
+						a = (inp.readLine()).toUpperCase();
+						for (j = 0; j < keys2.size(); j++)
+							if (a.equals(codes2[j]))
+								break;
+						s1 = keys2.get(j);
+						b = (inp.readLine()).toUpperCase();
+						for (j = 0; j < keys2.size(); j++)
+							if (b.equals(codes2[j]))
+								break;
+						s2 = keys2.get(j);
+					} else if (ch2 == 3) {
+						s1 = inp.readLine();
+						s2 = inp.readLine();
+					} else {
+						System.out.println("Invalid choice");
+						System.exit(0);
+					}
 
 					HashMap<String, Boolean> processed2 = new HashMap<>();
 					if (!g.containsVertex(s1) || !g.containsVertex(s2) || !g.hasPath(s1, s2, processed2))
 						System.out.println("THE INPUTS ARE INVALID");
 					else {
-						ArrayList<String> str = g.get_Interchanges(g.Get_Minimum_Distance(s1, s2));
+						ArrayList<String> str = g.get_Interchanges(g.dijkstra(s1, s2, false).psf);
 						int len = str.size();
 						System.out.println("SOURCE STATION : " + s1);
-						System.out.println("SOURCE STATION : " + s2);
-						System.out.println("DISTANCE : " + str.get(len - 1));
+						System.out.println("DESTINATION STATION : " + s2);
+						System.out.println("DISTANCE : " + str.get(len - 1) + " K.M.");
 						System.out.println("NUMBER OF INTERCHANGES : " + str.get(len - 2));
 						// System.out.println(str);
 						System.out.println("~~~~~~~~~~~~~");
@@ -607,16 +523,44 @@ public class Graph_M {
 					break;
 
 				case 6:
-					System.out.print("ENTER THE SOURCE STATION: ");
-					String ss1 = inp.readLine();
-					System.out.print("ENTER THE DESTINATION STATION: ");
-					String ss2 = inp.readLine();
+					ArrayList<String> keys3 = new ArrayList<>(vtces.keySet());
+					String codes3[] = printCodelist();
+					System.out.println(
+							"\n1. TO ENTER SERIAL NO. OF STATIONS\n2. TO ENTER CODE OF STATIONS\n3. TO ENTER NAME OF STATIONS\n");
+					System.out.println("ENTER YOUR CHOICE:");
+					int ch3 = Integer.parseInt(inp.readLine());
+					int j3;
+
+					String ss1 = "", ss2 = "";
+					System.out.println("ENTER THE SOURCE AND DESTINATION STATIONS");
+					if (ch3 == 1) {
+						ss1 = keys3.get(Integer.parseInt(inp.readLine()) - 1);
+						ss2 = keys3.get(Integer.parseInt(inp.readLine()) - 1);
+					} else if (ch3 == 2) {
+						String a, b;
+						a = (inp.readLine()).toUpperCase();
+						for (j = 0; j < keys3.size(); j++)
+							if (a.equals(codes3[j]))
+								break;
+						ss1 = keys3.get(j);
+						b = (inp.readLine()).toUpperCase();
+						for (j = 0; j < keys3.size(); j++)
+							if (b.equals(codes3[j]))
+								break;
+						ss2 = keys3.get(j);
+					} else if (ch3 == 3) {
+						ss1 = inp.readLine();
+						ss2 = inp.readLine();
+					} else {
+						System.out.println("Invalid choice");
+						System.exit(0);
+					}
 
 					HashMap<String, Boolean> processed3 = new HashMap<>();
 					if (!g.containsVertex(ss1) || !g.containsVertex(ss2) || !g.hasPath(ss1, ss2, processed3))
 						System.out.println("THE INPUTS ARE INVALID");
 					else {
-						ArrayList<String> str = g.get_Interchanges(g.Get_Minimum_Time(ss1, ss2));
+						ArrayList<String> str = g.get_Interchanges(g.dijkstra(ss1, ss2, true).psf);
 						int len = str.size();
 						System.out.println("SOURCE STATION : " + ss1);
 						System.out.println("DESTINATION STATION : " + ss2);
@@ -624,7 +568,7 @@ public class Graph_M {
 						System.out.println("NUMBER OF INTERCHANGES : " + str.get(len - 2));
 						// System.out.println(str);
 						System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-						System.out.print("START  ==>  " + str.get(0) + " ==>  ");
+						System.out.println("START  ==>  " + str.get(0));
 						for (int i = 1; i < len - 3; i++) {
 							System.out.println(str.get(i));
 						}
@@ -632,9 +576,63 @@ public class Graph_M {
 						System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 					}
 					break;
-				default: // If switch expression does not match with any case,
-							// default statements are executed by the program.
-							// No break is needed in the default case
+				case 7:
+					ArrayList<String> keys4 = new ArrayList<>(vtces.keySet());
+					String codes4[] = printCodelist();
+					System.out.println(
+							"\n1. TO ENTER SERIAL NO. OF STATIONS\n2. TO ENTER CODE OF STATIONS\n3. TO ENTER NAME OF STATIONS\n");
+					System.out.println("ENTER YOUR CHOICE:");
+					int ch4 = Integer.parseInt(inp.readLine());
+					int j4;
+
+					String sst1 = "", sst2 = "";
+					System.out.println("ENTER THE SOURCE AND DESTINATION STATIONS");
+					if (ch4 == 1) {
+						sst1 = keys4.get(Integer.parseInt(inp.readLine()) - 1);
+						sst2 = keys4.get(Integer.parseInt(inp.readLine()) - 1);
+					} else if (ch4 == 2) {
+						String a, b;
+						a = (inp.readLine()).toUpperCase();
+						for (j = 0; j < keys4.size(); j++)
+							if (a.equals(codes4[j]))
+								break;
+						sst1 = keys4.get(j);
+						b = (inp.readLine()).toUpperCase();
+						for (j = 0; j < keys4.size(); j++)
+							if (b.equals(codes4[j]))
+								break;
+						sst2 = keys4.get(j);
+					} else if (ch4 == 3) {
+						sst1 = inp.readLine();
+						sst2 = inp.readLine();
+					} else {
+						System.out.println("Invalid choice");
+						System.exit(0);
+					}
+
+					HashMap<String, Boolean> processed4 = new HashMap<>();
+					if (!g.containsVertex(sst1) || !g.containsVertex(sst2) || !g.hasPath(sst1, sst2, processed4))
+						System.out.println("THE INPUTS ARE INVALID");
+					else {
+						System.out.print("COST FOR " + sst1 + " TO " + sst2 + " IS ");
+						int dist = g.dijkstra(sst1, sst2, false).cost;
+
+						if (dist > 0 && dist <= 2) {
+							System.out.print(10);
+						} else if (dist > 2 && dist <= 5) {
+							System.out.print(20);
+						} else if (dist > 5 && dist <= 12) {
+							System.out.print(30);
+						} else if (dist > 12 && dist <= 21) {
+							System.out.print(40);
+						} else {
+							System.out.print(50);
+						}
+
+						System.out.println(" Rupees");
+					}
+					break;
+				default:
 					System.out.println("Please enter a valid option! ");
 					System.out.println("The options you can choose are from 1 to 6. ");
 
