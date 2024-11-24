@@ -221,13 +221,6 @@ public class Graph_M {
 		return dp;
 	}
 
-	private class Pair {
-		String vname;
-		String psf;
-		int min_dis;
-		int min_time;
-	}
-
 	public ArrayList<String> get_Interchanges(String str) {
 		ArrayList<String> arr = new ArrayList<>();
 		String res[] = str.split("  ");
